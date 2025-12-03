@@ -1,0 +1,30 @@
+{
+  "name": "annotr",
+  "version": "0.1.0",
+  "description": "Fast local code commenting CLI - AI-generated comments in under 2 seconds",
+  "bin": {
+    "annotr": "./bin/annotr"
+  },
+  "scripts": {
+    "postinstall": "node scripts/install.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cloudboy-jh/annotr.git"
+  },
+  "keywords": [
+    "cli",
+    "code",
+    "comments",
+    "documentation",
+    "ai",
+    "llm",
+    "ollama"
+  ],
+  "author": "cloudboy-jh",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cloudboy-jh/annotr/issues"
+  },
+  "homepage": "https://github.com/cloudboy-jh/annotr#readme"
+}
