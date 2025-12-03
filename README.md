@@ -80,6 +80,13 @@ annotr main.go
 annotr ./src
 # → Prompts for each file: "Process main.go? (y/n)"
 
+# Remove comments from a file or directory
+annotr clear file.go
+annotr clear ./src
+
+# Change the default model
+annotr model
+
 # Update models manifest
 annotr update-models
 ```
