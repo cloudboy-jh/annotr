@@ -1,3 +1,5 @@
+![annotr logo](annotr-logo.png)
+
 # annotr
 
 Fast local code commenting CLI. Add AI-generated comments to your code in under 2 seconds.
