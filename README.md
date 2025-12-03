@@ -13,19 +13,19 @@ Fast local code commenting CLI. Add AI-generated comments to your code in under 
 ## Installation
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/johnhorton/annotr/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/cloudboy-jh/annotr/main/install.sh | sh
 ```
 
 Or with Go:
 
 ```bash
-go install github.com/johnhorton/annotr/cmd/annotr@latest
+go install github.com/cloudboy-jh/annotr/cmd/annotr@latest
 ```
 
 Or build from source:
 
 ```bash
-git clone https://github.com/johnhorton/annotr.git
+git clone https://github.com/cloudboy-jh/annotr.git
 cd annotr
 make install
 ```
@@ -72,7 +72,7 @@ annotr init
 ```bash
 # Single file
 annotr main.go
-# → Adds comments, shows: "Enjoy your comments! 😉"
+# → Adds comments, shows: "Enjoy your comments! ;)"
 
 # Directory (interactive)
 annotr ./src

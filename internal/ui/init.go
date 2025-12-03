@@ -6,7 +6,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/johnhorton/annotr/internal/config"
+	"github.com/cloudboy-jh/annotr/internal/config"
 )
 
 type step int

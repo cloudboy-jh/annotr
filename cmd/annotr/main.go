@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/johnhorton/annotr/internal/cli"
+	"github.com/cloudboy-jh/annotr/internal/cli"
 )
 
 func main() {

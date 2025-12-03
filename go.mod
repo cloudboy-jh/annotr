@@ -1,4 +1,4 @@
-module github.com/johnhorton/annotr
+module github.com/cloudboy-jh/annotr
 
 go 1.25.4
 

@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"github.com/johnhorton/annotr/internal/config"
+	"github.com/cloudboy-jh/annotr/internal/config"
 	"github.com/spf13/cobra"
 )
 

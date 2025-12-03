@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-REPO="johnhorton/annotr"
+REPO="cloudboy-jh/annotr"
 BINARY="annotr"
 INSTALL_DIR="${INSTALL_DIR:-/usr/local/bin}"
 

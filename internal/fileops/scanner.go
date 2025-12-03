@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/johnhorton/annotr/internal/parser"
+	"github.com/cloudboy-jh/annotr/internal/parser"
 )
 
 type FileInfo struct {

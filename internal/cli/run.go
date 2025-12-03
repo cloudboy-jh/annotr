@@ -8,10 +8,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/johnhorton/annotr/internal/config"
-	"github.com/johnhorton/annotr/internal/fileops"
-	"github.com/johnhorton/annotr/internal/llm"
-	"github.com/johnhorton/annotr/internal/parser"
+	"github.com/cloudboy-jh/annotr/internal/config"
+	"github.com/cloudboy-jh/annotr/internal/fileops"
+	"github.com/cloudboy-jh/annotr/internal/llm"
+	"github.com/cloudboy-jh/annotr/internal/parser"
 	"github.com/spf13/cobra"
 )
 
