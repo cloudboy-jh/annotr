@@ -1,6 +1,6 @@
 {
   "name": "annotr",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Fast local code commenting CLI - AI-generated comments in under 2 seconds",
   "bin": {
     "annotr": "./bin/annotr"
