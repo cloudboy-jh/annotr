@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/cloudboy-jh/annotr/internal/config"
 )
@@ -13,6 +14,7 @@ type modelStep int
 const (
 	modelStepDetecting modelStep = iota
 	modelStepSelectProvider
+	modelStepEnterAPIKey
 	modelStepSelectModel
 	modelStepDone
 )
@@ -25,15 +27,23 @@ type ModelSelectModel struct {
 	selectedIdx      int
 	selectedProvider string
 	selectedModel    string
+	apiKeyInput      textinput.Model
 	config           *config.Config
 	err              error
 	quitting         bool
 }
 
 func NewModelSelectModel(cfg *config.Config) ModelSelectModel {
+	ti := textinput.New()
+	ti.Placeholder = "sk-ant-..."
+	ti.Focus()
+	ti.EchoMode = textinput.EchoPassword
+	ti.EchoCharacter = '*'
+
 	return ModelSelectModel{
 		step:             modelStepDetecting,
 		providers:        []string{"Ollama (local)", "Claude (Anthropic)", "OpenAI", "Groq"},
+		apiKeyInput:      ti,
 		config:           cfg,
 		selectedProvider: cfg.DefaultProvider,
 		selectedModel:    cfg.DefaultModel,
@@ -79,6 +89,12 @@ func (m ModelSelectModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 
+	if m.step == modelStepEnterAPIKey {
+		var cmd tea.Cmd
+		m.apiKeyInput, cmd = m.apiKeyInput.Update(msg)
+		return m, cmd
+	}
+
 	return m, nil
 }
 
@@ -92,16 +108,26 @@ func (m ModelSelectModel) handleEnter() (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
-		if m.selectedProvider != "ollama" {
-			if m.config.APIKeys[m.selectedProvider] == "" {
-				m.err = fmt.Errorf("no API key configured for %s. Run 'annotr init' to configure", m.selectedProvider)
-				m.step = modelStepDone
-				return m, tea.Quit
-			}
+		if m.selectedProvider != "ollama" && m.config.APIKeys[m.selectedProvider] == "" {
+			m.step = modelStepEnterAPIKey
+			m.apiKeyInput.Placeholder = getPlaceholder(m.selectedProvider)
+			m.apiKeyInput.SetValue("")
+			m.apiKeyInput.Focus()
+			m.selectedIdx = 0
+			return m, textinput.Blink
 		}
 
 		m.step = modelStepSelectModel
 		m.selectedIdx = 0
+		return m, nil
+
+	case modelStepEnterAPIKey:
+		key := m.apiKeyInput.Value()
+		if config.ValidateAPIKey(m.selectedProvider, key) {
+			m.config.APIKeys[m.selectedProvider] = key
+			m.step = modelStepSelectModel
+			m.selectedIdx = 0
+		}
 		return m, nil
 
 	case modelStepSelectModel:
@@ -170,13 +196,14 @@ func (m ModelSelectModel) View() string {
 
 		for i, p := range m.providers {
 			disabled := false
+			suffix := ""
 			if i == 0 && !m.ollamaFound {
 				disabled = true
 			}
 			if i > 0 {
 				providerKey := map[int]string{1: "anthropic", 2: "openai", 3: "groq"}[i]
 				if m.config.APIKeys[providerKey] == "" {
-					disabled = true
+					suffix = " (set API key)"
 				}
 			}
 
@@ -184,16 +211,20 @@ func (m ModelSelectModel) View() string {
 				if disabled {
 					b.WriteString(SelectedBullet() + " " + DimStyle.Render(p+" (not configured)") + "\n")
 				} else {
-					b.WriteString(SelectedBullet() + " " + SelectedStyle.Render(p) + "\n")
+					b.WriteString(SelectedBullet() + " " + SelectedStyle.Render(p+suffix) + "\n")
 				}
 			} else {
 				if disabled {
 					b.WriteString(Bullet() + " " + DimStyle.Render(p+" (not configured)") + "\n")
 				} else {
-					b.WriteString(Bullet() + " " + UnselectedStyle.Render(p) + "\n")
+					b.WriteString(Bullet() + " " + UnselectedStyle.Render(p+suffix) + "\n")
 				}
 			}
 		}
+
+	case modelStepEnterAPIKey:
+		b.WriteString(SubtitleStyle.Render(fmt.Sprintf("Configure %s", strings.Title(m.selectedProvider))) + "\n\n")
+		b.WriteString("API Key: " + m.apiKeyInput.View() + "\n")
 
 	case modelStepSelectModel:
 		b.WriteString(SubtitleStyle.Render("Select Model") + "\n\n")
