@@ -23,18 +23,18 @@ const (
 )
 
 type InitModel struct {
-	step           step
-	ollamaFound    bool
-	ollamaModels   []config.OllamaModel
-	providers      []string
-	selectedIdx    int
-	apiKeyInput    textinput.Model
+	step             step
+	ollamaFound      bool
+	ollamaModels     []config.OllamaModel
+	providers        []string
+	selectedIdx      int
+	apiKeyInput      textinput.Model
 	selectedProvider string
 	selectedModel    string
 	selectedStyle    string
-	config         *config.Config
-	err            error
-	quitting       bool
+	config           *config.Config
+	err              error
+	quitting         bool
 }
 
 func NewInitModel() InitModel {
@@ -46,7 +46,7 @@ func NewInitModel() InitModel {
 
 	return InitModel{
 		step:        stepDetecting,
-		providers:   []string{"Claude (Anthropic)", "OpenAI", "Groq"},
+		providers:   []string{"Ollama (local)", "Claude (Anthropic)", "OpenAI", "Groq"},
 		apiKeyInput: ti,
 		config:      config.DefaultConfig(),
 	}
@@ -87,11 +87,7 @@ func (m InitModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case detectMsg:
 		m.ollamaFound = msg.found
 		m.ollamaModels = msg.models
-		if m.ollamaFound && len(m.ollamaModels) > 0 {
-			m.step = stepSelectOllamaModel
-		} else {
-			m.step = stepSelectProvider
-		}
+		m.step = stepSelectProvider
 		return m, nil
 	}
 
@@ -107,8 +103,16 @@ func (m InitModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m InitModel) handleEnter() (tea.Model, tea.Cmd) {
 	switch m.step {
 	case stepSelectProvider:
-		providerMap := map[int]string{0: "anthropic", 1: "openai", 2: "groq"}
+		providerMap := map[int]string{0: "ollama", 1: "anthropic", 2: "openai", 3: "groq"}
 		m.selectedProvider = providerMap[m.selectedIdx]
+		if m.selectedProvider == "ollama" {
+			if !m.ollamaFound || len(m.ollamaModels) == 0 {
+				return m, nil
+			}
+			m.step = stepSelectOllamaModel
+			m.selectedIdx = 0
+			return m, nil
+		}
 		m.step = stepEnterAPIKey
 		m.apiKeyInput.Placeholder = getPlaceholder(m.selectedProvider)
 		m.selectedIdx = 0
@@ -119,9 +123,6 @@ func (m InitModel) handleEnter() (tea.Model, tea.Cmd) {
 			m.selectedModel = m.ollamaModels[m.selectedIdx].Name
 			m.selectedProvider = "ollama"
 			m.step = stepSelectStyle
-			m.selectedIdx = 0
-		} else {
-			m.step = stepSelectProvider
 			m.selectedIdx = 0
 		}
 		return m, nil
@@ -170,12 +171,15 @@ func (m InitModel) clampSelection() int {
 	case stepSelectProvider:
 		max = len(m.providers) - 1
 	case stepSelectOllamaModel:
-		max = len(m.ollamaModels)
+		max = len(m.ollamaModels) - 1
 	case stepSelectCloudModel:
 		max = len(getModelsForProvider(m.selectedProvider)) - 1
 	case stepSelectStyle:
 		max = 2
 	default:
+		max = 0
+	}
+	if max < 0 {
 		max = 0
 	}
 	if m.selectedIdx > max {
@@ -200,13 +204,30 @@ func (m InitModel) View() string {
 	case stepSelectProvider:
 		b.WriteString(SubtitleStyle.Render("Select LLM Provider") + "\n\n")
 		for i, p := range m.providers {
+			disabled := false
+			if i == 0 && (!m.ollamaFound || len(m.ollamaModels) == 0) {
+				disabled = true
+				if !m.ollamaFound {
+					p += " (not detected)"
+				} else {
+					p += " (no local models)"
+				}
+			}
 			if i == m.selectedIdx {
-				b.WriteString(SelectedBullet() + " " + SelectedStyle.Render(p) + "\n")
+				if disabled {
+					b.WriteString(SelectedBullet() + " " + DimStyle.Render(p) + "\n")
+				} else {
+					b.WriteString(SelectedBullet() + " " + SelectedStyle.Render(p) + "\n")
+				}
 			} else {
-				b.WriteString(Bullet() + " " + UnselectedStyle.Render(p) + "\n")
+				if disabled {
+					b.WriteString(Bullet() + " " + DimStyle.Render(p) + "\n")
+				} else {
+					b.WriteString(Bullet() + " " + UnselectedStyle.Render(p) + "\n")
+				}
 			}
 		}
-		b.WriteString("\n" + DimStyle.Render("[Install Ollama for local/free option]") + "\n")
+		b.WriteString("\n" + DimStyle.Render("[Install Ollama for local models]") + "\n")
 
 	case stepSelectOllamaModel:
 		b.WriteString(Checkmark() + " Ollama found at localhost:11434\n")
@@ -218,11 +239,6 @@ func (m InitModel) View() string {
 			} else {
 				b.WriteString(Bullet() + " " + UnselectedStyle.Render(model.Name) + "\n")
 			}
-		}
-		if m.selectedIdx == len(m.ollamaModels) {
-			b.WriteString(SelectedBullet() + " " + SelectedStyle.Render("[Use API key instead]") + "\n")
-		} else {
-			b.WriteString(Bullet() + " " + DimStyle.Render("[Use API key instead]") + "\n")
 		}
 
 	case stepEnterAPIKey:

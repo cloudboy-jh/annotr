@@ -6,25 +6,40 @@ Fast local code commenting CLI. Add AI-generated comments to your code in under 
 
 ## Features
 
-- **Local & Fast**: Uses Ollama with qwen2.5-coder:1.5b for 1-2 second generation
-- **Zero Cost**: No API fees, runs entirely on your machine
+- **Local or API**: Run Ollama locally or use Claude, OpenAI, or Groq
+- **Fast by Default**: Local models can generate in ~1-2 seconds
 - **Smart Context**: Tree-sitter parsing provides accurate code structure awareness
 - **Beautiful UX**: Charm stack (BubbleTea, Lipgloss) for polished terminal UI
-- **Multi-Provider**: Supports Ollama, Claude, OpenAI, and Groq
+- **No Lock-In**: Switch providers anytime with `annotr model`
 
 ## Installation
+
+Homebrew (macOS/Linux):
+
+```bash
+brew install cloudboy-jh/homebrew-annotr/annotr
+```
+
+Scoop (Windows):
+
+```bash
+scoop bucket add annotr https://github.com/cloudboy-jh/scoop-annotr
+scoop install annotr
+```
+
+Install script:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/cloudboy-jh/annotr/main/install.sh | sh
 ```
 
-Or with Go:
+Go install:
 
 ```bash
 go install github.com/cloudboy-jh/annotr/cmd/annotr@latest
 ```
 
-Or build from source:
+Build from source:
 
 ```bash
 git clone https://github.com/cloudboy-jh/annotr.git
@@ -45,14 +60,20 @@ annotr file.go
 annotr ./src
 ```
 
+Choose local or API providers during setup, and switch anytime with `annotr model`.
+
 ## Configuration
 
 Run `annotr init` to configure. It will:
 
 1. Detect Ollama (if installed) and list available models
-2. Or prompt for an API key (Claude/OpenAI/Groq)
-3. Let you select a model and comment style
+2. Prompt for an API key if you choose Claude/OpenAI/Groq
+3. Let you select a provider, model, and comment style
 4. Save to `~/.annotr/config.json`
+
+### Use API providers (no local model required)
+
+If you prefer cloud providers, just run `annotr init` and select Claude, OpenAI, or Groq. You can switch later with `annotr model`.
 
 ### Recommended: Install Ollama (free, local)
 
@@ -84,7 +105,7 @@ annotr ./src
 annotr clear file.go
 annotr clear ./src
 
-# Change the default model
+# Switch provider or model
 annotr model
 
 # Update models manifest

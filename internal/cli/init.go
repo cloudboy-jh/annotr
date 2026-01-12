@@ -16,7 +16,7 @@ var initCmd = &cobra.Command{
 	Long: `Initialize annotr configuration.
 
 This will guide you through:
-  - Detecting Ollama or selecting a cloud provider
+  - Selecting a local or cloud provider
   - Selecting a model
   - Choosing a comment style
 
