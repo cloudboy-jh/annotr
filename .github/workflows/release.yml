@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  goreleaser:
+  build-linux-windows:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -25,12 +25,87 @@ jobs:
       - name: Install mingw-w64
         run: sudo apt-get update && sudo apt-get install -y mingw-w64
 
-      - name: Run GoReleaser
+      - name: Build release artifacts
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
           version: "~> v2"
-          args: release --clean
+          args: release --clean --skip=publish --skip=sign --skip=announce --skip=validate
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-linux-windows
+          path: dist
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Build release artifacts
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --clean --skip=publish --skip=sign --skip=announce --skip=validate
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-macos
+          path: dist
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: [build-linux-windows, build-macos]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Download linux/windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-linux-windows
+          path: dist-linux-windows
+
+      - name: Download macOS artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-macos
+          path: dist-macos
+
+      - name: Merge dist artifacts
+        run: |
+          mkdir -p dist
+          cp -R dist-linux-windows/* dist/
+          cp -R dist-macos/* dist/
+
+      - name: Publish release
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: continue --clean --skip=validate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
