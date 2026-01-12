@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+version: 2
+
+project_name: annotr
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: annotr
+    main: ./cmd/annotr/main.go
+    binary: annotr
+    env:
+      - CGO_ENABLED=1
+      - CC={{ if eq .Os "windows" }}x86_64-w64-mingw32-gcc{{ else }}gcc{{ end }}
+      - CXX={{ if eq .Os "windows" }}x86_64-w64-mingw32-g++{{ else }}g++{{ end }}
+    goos:
+      - linux
+      - windows
+    goarch:
+      - amd64
+
+archives:
+  - id: annotr
+    formats:
+      - tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+
+scoops:
+  - name: annotr
+    repository:
+      owner: cloudboy-jh
+      name: scoop-annotr
+      token: "{{ .Env.SCOOP_BUCKET_PAT }}"
+    homepage: "https://github.com/cloudboy-jh/annotr"
+    description: "annotr - Fast local code commenting CLI"
+    license: MIT
