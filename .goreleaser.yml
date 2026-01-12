@@ -12,14 +12,14 @@ builds:
     main: ./cmd/annotr/main.go
     binary: annotr
     env:
-      - CGO_ENABLED=0
+      - CGO_ENABLED=1
+      - CC={{ if eq .Os "windows" }}x86_64-w64-mingw32-gcc{{ else }}gcc{{ end }}
+      - CXX={{ if eq .Os "windows" }}x86_64-w64-mingw32-g++{{ else }}g++{{ end }}
     goos:
       - linux
-      - darwin
       - windows
     goarch:
       - amd64
-      - arm64
 
 archives:
   - id: annotr
@@ -42,7 +42,7 @@ changelog:
       - "^test:"
       - "^chore:"
 
-homebrew_casks:
+brews:
   - name: annotr
     repository:
       owner: cloudboy-jh
@@ -51,8 +51,8 @@ homebrew_casks:
     homepage: "https://github.com/cloudboy-jh/annotr"
     description: "annotr - Fast local code commenting CLI"
     license: "MIT"
-    binaries:
-      - annotr
+    install: |
+      bin.install "annotr"
 
 scoops:
   - name: annotr

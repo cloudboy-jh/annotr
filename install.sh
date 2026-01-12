@@ -33,6 +33,21 @@ main() {
 
     echo "Detected: ${OS}-${ARCH}"
 
+    if [ "$OS" = "darwin" ]; then
+        if command -v brew >/dev/null 2>&1; then
+            echo "Installing via Homebrew..."
+            brew install cloudboy-jh/homebrew-annotr/annotr
+            exit 0
+        fi
+        echo "Error: Homebrew is required on macOS. Install from https://brew.sh/"
+        exit 1
+    fi
+
+    if [ "$ARCH" = "arm64" ]; then
+        echo "Error: arm64 binaries are not available yet. Use 'go install' instead."
+        exit 1
+    fi
+
     LATEST=$(curl -s "https://api.github.com/repos/${REPO}/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
     
     if [ -z "$LATEST" ]; then

@@ -51,8 +51,15 @@ jobs:
           echo "New version: $NEW_VERSION"
 
       - name: Create and push tag
+        env:
+          AUTO_RELEASE_TOKEN: ${{ secrets.ANNOTR_AUTO_RELEASE_TOKEN }}
         run: |
+          if [ -z "$AUTO_RELEASE_TOKEN" ]; then
+            echo "AUTO_RELEASE_TOKEN is not set" >&2
+            exit 1
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag ${{ steps.bump_version.outputs.new_version }}
+          git remote set-url origin https://x-access-token:${AUTO_RELEASE_TOKEN}@github.com/${{ github.repository }}.git
           git push origin ${{ steps.bump_version.outputs.new_version }}

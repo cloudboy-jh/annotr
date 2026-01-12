@@ -27,7 +27,7 @@ scoop bucket add annotr https://github.com/cloudboy-jh/scoop-annotr
 scoop install annotr
 ```
 
-Install script:
+Install script (Linux/Windows; macOS uses Homebrew):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/cloudboy-jh/annotr/main/install.sh | sh
