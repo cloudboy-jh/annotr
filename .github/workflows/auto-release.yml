@@ -47,6 +47,10 @@ jobs:
           fi
           
           NEW_VERSION="v$MAJOR.$MINOR.$PATCH"
+          while git rev-parse "$NEW_VERSION" >/dev/null 2>&1; do
+            PATCH=$((PATCH + 1))
+            NEW_VERSION="v$MAJOR.$MINOR.$PATCH"
+          done
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "New version: $NEW_VERSION"
 
