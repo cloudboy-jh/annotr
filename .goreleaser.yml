@@ -51,6 +51,7 @@ brews:
     homepage: "https://github.com/cloudboy-jh/annotr"
     description: "annotr - Fast local code commenting CLI"
     license: "MIT"
+    directory: Formula
     install: |
       bin.install "annotr"
 
